@@ -94,7 +94,7 @@ Once connected, ask Claude to use the tools directly, e.g.:
 |------|-------------|------------|
 | `get_my_profile` | Get user profile and settings | None |
 | `list_enrolled_programs` | List your active programs | None |
-| `get_training_history` | Get detailed workout history | `timezone_offset` |
+| `get_training_history` | Workout history, compact by default. Returns JSON with pagination metadata and a `has_more` flag so large histories can be walked in chunks. | `start_date`, `end_date`, `detail`, `page`, `page_size`, `timezone_offset` |
 | `get_payment_history` | View your subscription/orders | None |
 | `list_custom_exercises` | List your custom exercises | None |
 | `list_all_programs` | Search the program catalog | `page`, `page_size`, `keyword` |
@@ -106,6 +106,35 @@ Once connected, ask Claude to use the tools directly, e.g.:
 | `get_home_muscle` | Muscle group distribution | `timezone_offset` |
 
 `timezone_offset` is in minutes from UTC and defaults to `-300`.
+
+### Working with training history
+
+`get_training_history` is built to keep responses small enough for any MCP
+client. By default it returns a **summary** of your **50 most recent** workouts
+(date, program, exercises, and total volume) plus pagination metadata:
+
+```json
+{
+  "workouts": [ { "date": "2026-06-10", "program_name": "...",
+                  "exercises": ["Squat (Barbell)", "..."],
+                  "total_volume": 11570, "volume_unit": "lbs" } ],
+  "pagination": {"page": 1, "page_size": 50, "total": 231,
+                 "returned": 50, "has_more": true},
+  "filters": {"start_date": null, "end_date": null, "detail": "summary"},
+  "hint": "231 workouts match. Showing 50 (page 1, summary). Use page=2 ..."
+}
+```
+
+- **Filter by date:** `start_date` / `end_date` as `YYYY-MM-DD` (inclusive),
+  e.g. *"my workouts since 2026-04-07"*.
+- **Page through history:** bump `page` while `pagination.has_more` is `true`
+  (`page_size` caps at 100 for summary, 25 for full).
+- **Get every set and rep:** `detail="full"` adds per-exercise records with each
+  set's weight, reps, target, and RPE. Use a small `page_size` here.
+
+Supersets are flattened: each exercise inside a superset is listed individually
+(with its sets counted toward `total_volume`), and in `full` detail those
+exercises carry a `superset` id so the grouping is still visible.
 
 ## 🔧 Troubleshooting
 
