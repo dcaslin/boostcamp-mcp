@@ -1,10 +1,10 @@
 [project]
 name = "boostcamp-mcp"
 version = "0.1.0"
-description = "Add your description here"
+description = "A Model Context Protocol (MCP) server for the Boostcamp fitness platform — access your training history, programs, custom exercises, and analytics from Claude."
 readme = "README.md"
 authors = [
-    { name = "Alex Keyes", email = "alex.o.keyes@gmail.com" }
+    { name = "David Caslin", email = "dcaslin@gmail.com" }
 ]
 requires-python = ">=3.13"
 dependencies = [
@@ -24,7 +24,7 @@ dev-dependencies = [
 ]
 
 [tool.uv.sources]
-boostcampapi = { git = "https://github.com/Alex-Keyes/boostcamp-api.git" }
+boostcampapi = { git = "https://github.com/dcaslin/boostcamp-api.git" }
 
 [build-system]
 requires = ["hatchling"]
